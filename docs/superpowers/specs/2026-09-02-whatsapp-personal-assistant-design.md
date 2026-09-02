@@ -6,11 +6,11 @@
 
 ## Purpose
 
-Extract the WhatsApp → Notion inbox from the private `portfolio-20k` site into a
+Extract the WhatsApp → Notion inbox from a private Next.js site into a
 standalone public template that someone else can deploy for themselves in under an
 hour, without cloning the repo or opening a terminal.
 
-The origin is `portfolio-20k/app/api/whatsapp/route.ts` + `lib/inbox/*` (~1,100
+The origin is `app/api/whatsapp/route.ts` + `lib/inbox/*` in that site (~1,100
 lines, already working in production). That module is fully self-contained — it has
 zero imports outside itself — so extraction is a copy, not a refactor.
 
@@ -276,5 +276,5 @@ number; this does not ship to production.
 - **Notion structure drift.** If he renames a page, runtime title resolution stops
   finding it. Mitigated by naming the missing page in the failure reply.
 - **Public repo, owner's history.** The extraction must be a fresh repo with a fresh
-  first commit, never a filtered clone of `portfolio-20k`, so no private history or
+  first commit, never a filtered clone of the origin repo, so no private history or
   page IDs come along.

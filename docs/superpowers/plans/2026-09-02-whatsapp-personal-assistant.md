@@ -8,7 +8,7 @@
 
 **Tech Stack:** Next.js 15 (App Router, Node runtime), TypeScript, `@anthropic-ai/sdk`, Notion REST API v1, WhatsApp Cloud API (Graph v21.0), Vitest.
 
-**Source material:** The working original lives at `~/Documents/GitHub/life-master/portfolio-20k` (`app/api/whatsapp/route.ts`, `lib/inbox/*`). Code below is transplanted from it. Read `docs/superpowers/specs/2026-09-02-whatsapp-personal-assistant-design.md` before starting.
+**Source material:** Transplanted from a working private deployment of the same assistant (`app/api/whatsapp/route.ts` + `lib/inbox/*`, ~1,100 lines in production). Read `docs/superpowers/specs/2026-09-02-whatsapp-personal-assistant-design.md` before starting.
 
 ## Global Constraints
 
