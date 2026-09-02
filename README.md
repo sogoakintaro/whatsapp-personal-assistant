@@ -75,105 +75,49 @@ You will come back to Vercel several times to add variables. The route is always
 > **Deployments** tab → the top deployment → **⋯** → **Redeploy**. Forgetting this
 > is the most common reason a step "doesn't work" when everything looks correct.
 
-## 2. Notion
+## 2. Everything else happens in the wizard
 
-1. Go to <https://www.notion.so/profile/integrations> → **New integration** (internal).
-   Give it **Read content** and **Insert content**.
-2. Copy the **Internal Integration Secret** → `NOTION_TOKEN`.
-3. In Notion, make **one** page to hold everything (call it *Assistant*, or anything).
-4. On that page: **•••** → **Connections** → add your integration. **This step is the
-   one everyone forgets**, and without it nothing can be created.
-5. Copy the 32-character id out of the page URL → `NOTION_PARENT_PAGE_ID`.
+Open your deployment and add `/setup?key=` plus a `SETUP_SECRET` you invent:
 
-## 3. Anthropic
+```
+https://YOUR-APP.vercel.app/setup?key=YOUR_SETUP_SECRET
+```
 
-Create a key at <https://console.anthropic.com> → `ANTHROPIC_API_KEY`.
+Add `SETUP_SECRET` in **Settings → Environment Variables** first, then
+**Deployments → ⋯ → Redeploy**, or the page will 404.
 
-## 4. Set the variables and redeploy
+From there the wizard owns the rest. It tells you what each setting is for and
+where to get it, calls Anthropic, Notion and Meta to prove your credentials really
+work, builds your Notion pages for you, walks you through the Meta setup in the
+order that actually works, and shows you the exact callback URL to paste in.
 
-In **Settings → Environment Variables**, add the four you have so far:
+These instructions deliberately live in the app rather than here, because the app
+is the only thing that can check whether you got them right. Two copies of a
+procedure drift apart, and the stale one is always the one being read.
 
-| Variable | Value |
-|---|---|
-| `ANTHROPIC_API_KEY` | from step 3 |
-| `NOTION_TOKEN` | from step 2 |
-| `NOTION_PARENT_PAGE_ID` | from step 2 |
-| `SETUP_SECRET` | invent one — any random string, e.g. a password generator's output |
+### What you're signing up for
 
-Then **Deployments → ⋯ → Redeploy**, or nothing you just added will be live.
+So you know before you start:
 
-## 5. Run the setup wizard
-
-Open `https://YOUR-APP.vercel.app/setup?key=YOUR_SETUP_SECRET` — your deployment URL
-from step 1, then `/setup?key=` and the `SETUP_SECRET` you invented.
-
-> **If you get a 404**, one of three things is true: the key doesn't match
-> `SETUP_SECRET` exactly, you added `SETUP_SECRET` but didn't redeploy, or you left
-> off `?key=` entirely. A wrong key returns 404 rather than "unauthorised", on
-> purpose — it means nobody can discover the wizard exists by guessing URLs.
-
-Work down the page. It shows which variables are still missing, tests that your
-credentials actually work (not just that they're set), and builds your Notion pages
-for you. Come back to it after every step below.
-
-## 6. WhatsApp — do this after deploying, not before
-
-**Order matters.** Meta verifies the webhook by calling your app, so the app has to
-be live with `WHATSAPP_VERIFY_TOKEN` already set before step 8 will work.
-
-1. Create an app at <https://developers.facebook.com/apps> → type **Business**.
-2. Add the **WhatsApp** product. Meta gives you a free **test number**.
-
-   > **Do not register your own phone number.** A number attached to the Cloud API
-   > can no longer be used in the normal WhatsApp app. Use Meta's test number and
-   > message *it* from your personal WhatsApp.
-
-3. Under **WhatsApp → API Setup**: copy the **Phone number ID** →
-   `WHATSAPP_PHONE_NUMBER_ID`, and add your own number as an allowed recipient
-   (you'll get a code to confirm). The test number can message up to 5 verified
-   recipients, which is plenty for personal use.
-4. **App Settings → Basic → App Secret** → `WHATSAPP_APP_SECRET`.
-5. Create the access token → `WHATSAPP_TOKEN`.
-
-   > **The temporary token on the API Setup page expires in 24 hours.** If you use
-   > it, your assistant will work today and go silent tomorrow, and it will look
-   > like the code broke. Instead: **Business Settings → Users → System Users** →
-   > create one → give it `whatsapp_business_messaging` → generate a token with no
-   > expiry.
-
-6. Set `WHATSAPP_ALLOWED_SENDERS` to your own number (digits, with country code).
-   Anyone not on this list is silently ignored. An empty list blocks everyone.
-7. Redeploy so the new variables take effect.
-8. **WhatsApp → Configuration → Webhook** → Callback URL
-   `https://YOUR-APP.vercel.app/api/whatsapp`, verify token = your
-   `WHATSAPP_VERIFY_TOKEN`. Click **Verify and save**.
-9. Under **Webhook fields**, subscribe to **`messages`**. Nothing arrives until you do.
-
-## 7. Try it
-
-Message the test number from your phone:
-
-- *"remind me to email the plumber on Friday"* → a checkbox with a date chip
-- *"learned that defaults should change as users gain trust"* → a bullet under this month in Learnings
-- *"what if onboarding had a voice-first mode"* → a bullet under this month in Musings
-
-You should get a reply with a link within a few seconds.
-
-## 8. Lock the wizard
-
-Delete `SETUP_SECRET` in Vercel and redeploy. `/setup` and its API routes now 404
-for everyone. Put it back whenever you need to return.
+- **Three accounts** — Anthropic, Notion, Meta — and roughly 45 minutes, most of it
+  clicking around Meta's dashboard.
+- **Meta is the tedious part.** Business app, system user, permanent token, webhook
+  verification. Nothing can automate it; the wizard just tells you what to click and
+  checks the result.
+- **Use Meta's free test number, not your own.** A number registered to the Cloud API
+  can no longer be used in the normal WhatsApp app.
+- **Running cost is near zero.** Vercel Hobby, Notion and Meta's test number are free;
+  Claude Haiku on short messages is fractions of a penny each.
 
 ## Troubleshooting
 
-| Symptom | Cause |
-|---|---|
-| Webhook won't verify | App isn't deployed yet, `WHATSAPP_VERIFY_TOKEN` doesn't match, or you used a preview URL instead of the production one |
-| Worked yesterday, silent today | The 24-hour temporary token expired. Use a System User token |
-| No reply at all | Your number isn't in `WHATSAPP_ALLOWED_SENDERS` (digits only), or you didn't subscribe to `messages` |
-| "I can't find your Todo page" | Run **Create my Notion pages** in `/setup`, or you renamed a page — the titles must stay Todo / Learnings / Musings |
-| Notion 404 in `/setup` | The parent page isn't shared with the integration (••• → Connections) |
-| Goes to the wrong to-do list | `NOTION_TODO_SECTIONS` must match the headings on your Todo page |
+The wizard has a troubleshooting section that stays in step with the code — start
+there. The two failures worth knowing up front:
+
+- **It worked yesterday and is silent today.** Your WhatsApp token expired. The
+  temporary one on Meta's API Setup page lasts 24 hours; you need a System User
+  token with no expiry.
+- **A change had no effect.** Environment variables do nothing until you redeploy.
 
 ## Customising
 

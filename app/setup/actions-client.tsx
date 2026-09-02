@@ -80,8 +80,12 @@ export function SetupActions({ setupKey }: { setupKey: string }) {
   return (
     <>
       <div style={box}>
-        <h2 style={{ marginTop: 0 }}>2. Do the credentials actually work?</h2>
-        <p style={{ color: '#555' }}>Set is not the same as working. This calls each service for real.</p>
+        <h2 style={{ marginTop: 0 }}>2. Check they actually work</h2>
+        <p style={{ color: '#555' }}>
+          Filled in is not the same as working — a typo looks identical to a correct value. This
+          calls Anthropic, Notion and Meta for real and tells you what each one said. Run it again
+          after every change.
+        </p>
         <button style={button} onClick={runChecks} disabled={checking}>
           {checking ? 'Checking…' : 'Test my credentials'}
         </button>
@@ -97,8 +101,13 @@ export function SetupActions({ setupKey }: { setupKey: string }) {
       <div style={box}>
         <h2 style={{ marginTop: 0 }}>3. Build the Notion pages</h2>
         <p style={{ color: '#555' }}>
-          Creates Todo, Learnings and Musings inside your parent page, with your to-do lists and this
-          month&apos;s toggle. Safe to run twice — it checks before it creates.
+          Do this once the Notion check above is green. It creates <strong>Todo</strong>,{' '}
+          <strong>Learnings</strong> and <strong>Musings</strong> inside the page you shared, adds
+          your to-do lists as headings, and opens this month&apos;s toggle. Later months are created
+          automatically as they arrive.
+        </p>
+        <p style={{ color: '#555', fontSize: '0.9rem' }}>
+          Safe to press twice — it looks before it creates, so nothing gets duplicated.
         </p>
         <button style={button} onClick={runBootstrap} disabled={booting}>
           {booting ? 'Creating…' : 'Create my Notion pages'}
