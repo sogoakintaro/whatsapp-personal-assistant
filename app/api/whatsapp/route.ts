@@ -23,12 +23,18 @@ export async function GET(request: NextRequest) {
   const token = params.get('hub.verify_token')
   const challenge = params.get('hub.challenge')
 
-  if (mode === 'subscribe' && token && token === process.env.WHATSAPP_VERIFY_TOKEN) {
-    return new NextResponse(challenge ?? '', { status: 200 })
+  if (mode === 'subscribe' && token === process.env.WHATSAPP_VERIFY_TOKEN && challenge) {
+    return new Response(challenge, {
+      status: 200,
+      headers: { 'Content-Type': 'text/plain' },
+    })
   }
-  return new NextResponse('Forbidden', { status: 403 })
-}
 
+  return new Response('Forbidden', {
+    status: 403,
+    headers: { 'Content-Type': 'text/plain' },
+  })
+}
 export async function POST(request: NextRequest) {
   const raw = await request.text()
 
