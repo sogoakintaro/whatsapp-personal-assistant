@@ -11,7 +11,7 @@ type Json = any
 
 function extractNotionId(input: string): string {
   const value = input.trim()
-  const match = value.match(/[0-9a-fA-F]{32}/)
+  const match = value.match(/[0-9a-fA-F]{8}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{4}-?[0-9a-fA-F]{12}/)
   if (!match) throw new Error(`Invalid Notion page ID or URL: ${input}`)
   return match[0]
 }
