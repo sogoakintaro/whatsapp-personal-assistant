@@ -9,6 +9,13 @@ const NOTION_API = 'https://api.notion.com/v1'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Json = any
 
+function extractNotionId(input: string): string {
+  const value = input.trim()
+  const match = value.match(/[0-9a-fA-F]{32}/)
+  if (!match) throw new Error(`Invalid Notion page ID or URL: ${input}`)
+  return match[0]
+}
+
 async function notion(path: string, init?: RequestInit): Promise<Json> {
   const token = process.env.NOTION_TOKEN
   if (!token) throw new Error('Missing NOTION_TOKEN')
