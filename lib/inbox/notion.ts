@@ -52,8 +52,9 @@ async function getChildren(blockId: string): Promise<Json[]> {
   do {
     const qs = new URLSearchParams({ page_size: '100' })
     if (cursor) qs.set('start_cursor', cursor)
-    const data = await notion(`/blocks/${blockId}/children?${qs.toString()}`)
-    blocks.push(...(data.results || []))
+   const cleanBlockId = extractNotionId(blockId)
+const data = await notion(`/blocks/${cleanBlockId}/children?${qs.toString()}`)
+blocks.push(...(data.results || []))
     cursor = data.has_more ? data.next_cursor : undefined
   } while (cursor)
   return blocks
