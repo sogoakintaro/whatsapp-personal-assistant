@@ -96,7 +96,7 @@ export async function findSections(pageId: string, maxDepth = 5): Promise<Sectio
     }
   }
 
-  await walk(pageId, 0)
+  await walk(extractNotionId(pageId), 0)
   return out
 }
 
@@ -183,8 +183,9 @@ export function notionDeepLink(pageId: string, blockId?: string): string {
 
 // Creates a child page under `parentId` and returns its page id.
 export async function createPage(parentId: string, title: string, emoji?: string): Promise<string> {
+  const cleanParentId = extractNotionId(parentId)
   const body: Json = {
-    parent: { page_id: parentId },
+    parent: { page_id: cleanParentId },
     properties: { title: { title: richText(title) } },
   }
   if (emoji) body.icon = { type: 'emoji', emoji }
@@ -195,7 +196,7 @@ export async function createPage(parentId: string, title: string, emoji?: string
 // Finds a direct child page by exact (case-insensitive) title. Returns null if
 // absent, so callers can decide whether to create or to fail.
 export async function findChildPageByTitle(parentId: string, title: string): Promise<string | null> {
-  const children = await getChildren(parentId)
+  const children = await getChildren(extractNotionId(parentId))
   const match = children.find(
     (b) => b.type === 'child_page' && String(b.child_page?.title || '').trim().toLowerCase() === title.toLowerCase(),
   )
@@ -214,7 +215,8 @@ export async function ensureSection(
   label: string,
   type: 'toggle' | 'heading_3',
 ): Promise<string> {
-  const existing = findByLabel(await findSections(pageId), label)
+  const cleanPageId = extractNotionId(pageId)
+  const existing = findByLabel(await findSections(cleanPageId), label)
   if (existing) return existing.id
 
   const block: Json = {
@@ -223,7 +225,7 @@ export async function ensureSection(
     [type]: { rich_text: richText(label) },
   }
   // Newest month first on note pages; to-do headings keep document order.
-  const created = await appendChild(pageId, block, type === 'toggle' ? { type: 'start' } : undefined)
+  const created = await appendChild(cleanPageId, block, type === 'toggle' ? { type: 'start' } : undefined)
   if (!created?.id) throw new Error(`Notion did not return a block id when creating section "${label}"`)
   return created.id as string
 }
